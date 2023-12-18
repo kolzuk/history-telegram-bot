@@ -52,17 +52,19 @@ public class TextGameMode implements IGameMode {
     }
 
     @Override
-    public void answerToQuestion(String chatId, String answer) {
+    public boolean answerToQuestion(String chatId, String answer) {
+        boolean isCorrectAnswer = false;
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatId);
 
         if (!QUESTIONS.containsKey(chatId)) {
             LOGGER.info("Does not contains chat id");
-            return;
+            return isCorrectAnswer;
         }
 
         if (QUESTIONS.get(chatId).equals(answer)) {
             sendMessage.setText("Правильный ответ!");
+            isCorrectAnswer = true;
         } else {
             sendMessage.setText(
                     "К сожалению, ответ неправильный. Ответ: "
@@ -73,9 +75,11 @@ public class TextGameMode implements IGameMode {
             BOT.execute(sendMessage);
         } catch (TelegramApiException e) {
             LOGGER.info(e.getMessage());
-            return;
+            return isCorrectAnswer;
         }
 
         QUESTIONS.remove(chatId);
+
+        return isCorrectAnswer;
     }
 }

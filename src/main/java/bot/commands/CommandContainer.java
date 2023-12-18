@@ -13,6 +13,8 @@ public class CommandContainer {
     public CommandContainer(HistoricalBot bot) {
         commands.put("/start", new StartCommand(bot));
         commands.put("/next", new NextCommand(bot));
+        commands.put("/score", new ScoreCommand(bot));
+        commands.put("/rating", new RatingCommand(bot));
 
         unknownCommand = new UnknownCommand(bot);
     }

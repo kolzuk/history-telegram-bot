@@ -8,9 +8,11 @@ import bot.gamemode.ImageGameMode;
 import bot.gamemode.TextGameMode;
 import bot.infrastructure.repositories.ImageQuestionRepository;
 import bot.infrastructure.repositories.TextQuestionRepository;
+import bot.infrastructure.repositories.UserRepository;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.games.Game;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.sql.Connection;
@@ -40,12 +42,13 @@ public final class HistoricalBot extends TelegramLongPollingBot {
         }
 
         TextQuestionRepository textQuestionRepository = new TextQuestionRepository(connection);
+        UserRepository userRepository = new UserRepository(connection);
         ImageQuestionRepository imageQuestionRepository = new ImageQuestionRepository();
 
         TextGameMode textGameMode = new TextGameMode(this, textQuestionRepository);
         ImageGameMode imageGameMode = new ImageGameMode(this, imageQuestionRepository);
 
-        GAME_MODE_SERVICE = new GameModeService(imageGameMode, textGameMode);
+        GAME_MODE_SERVICE = new GameModeService(imageGameMode, textGameMode, userRepository);
     }
 
     @Override
@@ -60,7 +63,7 @@ public final class HistoricalBot extends TelegramLongPollingBot {
                 ICommand command = commandContainer.getCommand(commandIdentifier);
                 command.execute(update);
             } else {
-                GAME_MODE_SERVICE.answerToQuestion(chatId, messageText);
+                GAME_MODE_SERVICE.answerToQuestion(update, messageText);
             }
         } else if (update.hasCallbackQuery()) {
             String gameMode = update.getCallbackQuery().getData();
@@ -79,8 +82,8 @@ public final class HistoricalBot extends TelegramLongPollingBot {
         }
     }
 
-    public IGameMode getGameMode() {
-        return GAME_MODE_SERVICE.getCurrentGameMode();
+    public GameModeService getGameModeService() {
+        return GAME_MODE_SERVICE;
     }
 
     @Override

@@ -11,6 +11,6 @@ public class NextCommand implements ICommand {
 
     @Override
     public void execute(Update update) {
-        bot.getGameMode().askQuestion(update.getMessage().getChatId().toString());
+        bot.getGameModeService().askQuestion(update.getMessage().getChatId().toString());
     }
 }
